@@ -1,2 +1,2 @@
 # python_projects
-All of my school and private python projects.
+DFS - depth first dearch - algorytm przeszukiwania grafu w głąb.
