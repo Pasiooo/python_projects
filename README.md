@@ -6,3 +6,4 @@ gTSP - greed traveling salesman problem - algorytm zachłanny szukania najkróts
 Knackpack problem - dyskretny problem optymalizacji załadunku  
 szeregowanie zadań maszyn - problem optymalizacyjny szukający sekwencji wykonywania działań z pewnymi ograniczeniami  
 wyznaczanie optymalnej partii produkcyjnej - problem optymalizacji np. przechowywania ilości zasobów w magazynie  
+Little TSP - algotyrm Little'a dla zagadnienia komiwojażera  
