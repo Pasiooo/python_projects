@@ -1,107 +1,76 @@
-import math
-
-def a_star(graf: dict, s: str, k: str, h: dict):
-    Tz = [] # z nich już wyszedłem
-    To = [] # do nich dopiero dotarłem
-    f = {} # funkcja długości
-    g = {} # odleglosc miedzy miastami
-    u = s # miasto w ktorym aktualnie jestem
-    h_aktualne = h.copy() # zapisanie odleglosci do nowej zmiennej
-    # dodatkowa zmienna do sprawdzania nowych odleglosci
-    for el in h:
-        h[el] = math.inf
-    # aktualnie przebyta dlugosc
-    sciezka = 0
-    # zapisane wszystkie sciezki, najlepsze
-    najlepsza_sciezka = {}
-    while True:
-        # usuwamy miasto z ktorego wychodzimy
-        if u in To:
-            To.remove(u)
-        # sprawdzamy sasiednie miasta
-        for el in graf[u]:
-            # miasta w ktorych jeszcze nie bylismy
-            if el not in Tz:
-                g[el] = graf[u][el]
-                # sprawdzamy czy poprawia sie odleglosc
-                if h[el] > g[el] + h_aktualne[el] + sciezka:
-                    f[el] = g[el] + h_aktualne[el] + sciezka
-                    h[el] = g[el] + h_aktualne[el] + sciezka
-                    # aktualizujemy najlepsza sciezke
-                    if u not in najlepsza_sciezka:
-                        najlepsza_sciezka[u] = u
-                    # tym prosze sie nie przejmowac to jest tylko dla ułatiwenia żeby wszystko było w jenej liście
-                    if type(najlepsza_sciezka[u]) is list:
-                        zmienna = najlepsza_sciezka[u].copy()
-                        zmienna.append(el)
-                    else:
-                        zmienna = [najlepsza_sciezka[u], el]
-                    najlepsza_sciezka[el] = zmienna
-                # dodajemy do listy sąsiadów
-                if el not in To:
-                    To.append(el)
-        # dodajemy do odwiedzonych miasto z ktorego wychodzimy
-        Tz.append(u)
-        # Jak było ono Krakowem to koniec
-        if u == k:
-            break
-        odleglosc = math.inf
-        # aktualizowanie odleglosci
-        for el in To:
-            if el not in Tz:
-                if f[el] < odleglosc:
-                    u = el
-                    odleglosc = f[el]
-
-        # obliczanie sciezki do u
-        sciezka = 0
-        for i in range(len(najlepsza_sciezka[u]) - 1):
-            miejsce1 = najlepsza_sciezka[u][i]
-            miejsce2 = najlepsza_sciezka[u][i + 1]
-            sciezka += graf[miejsce1][miejsce2]
-
-    # Ostateczne obliczenie drogi do przebycia z najkrotszej sciezki
-    ostateczna_sciezka = najlepsza_sciezka['Krakow']
-    ostateczna_odleglosc = 0
-    miejsce1 = ''
-    miejsce2 = ''
-    for i in range(len(ostateczna_sciezka) - 1):
-        miejsce1 = ostateczna_sciezka[i]
-        miejsce2 = ostateczna_sciezka[i + 1]
-        ostateczna_odleglosc += graf[miejsce1][miejsce2]
-
-    return ostateczna_sciezka, ostateczna_odleglosc
+def DFS(G: dict[int], s: int) -> dict[int]:
+    licznik = 0
+    # słownik do przedstawienia elementów w nowej kolejności
+    numeracja_elementow = {}
+    # Liczby naturalne 1,...,n
+    lista_numerow = [el for el in range(1, len(G) + 1)]
+    lista = [s]  # pomocnicza lista, z pierwszym elementem
+    while lista:  # dopoki lista nie jest pusta
+        v = lista.pop()  # bierzemy element z listy
+        # sprawdzamy czy ten element byl juz sprawdzany
+        if v not in numeracja_elementow:
+            # dodajemy mu numer
+            numeracja_elementow[v] = lista_numerow.pop(0)
+            # bierzemy jego sąsiadów
+            lista_zapasowa = G[v][::-1]
+            # zapisujemy sąsiadów do listy elementów do sprawdzenia
+            for u in lista_zapasowa:
+                licznik += 1
+                lista.append(u)
+    # Sprawdzanie cykliczności grafu z ilości ruchów ile wykonał
+    if licznik == (len(numeracja_elementow) - 1)*2:
+        print('Graf acykliczny')
+    else:
+        print('Graf cykliczny')
+    return numeracja_elementow  # zwracamy wynik
 
 def main():
-    graf = {'Opole': {'Czestochowa': 97, 'Strzelce': 33, 'Gliwice': 82, 'Kedzierzyn': 54},
-          'Czestochowa': {'Opole': 97, 'Strzelce': 77, 'Dabrowa': 63, 'Wolbrom': 85, 'Koniecpol': 45},
-          'Koniecpol': {'Czestochowa': 45, 'Wolbrom': 53},
-          'Strzelce': {'Opole': 33, 'Czestochowa': 77, 'Bytom': 51, 'Gliwice': 39},
-          'Kedzierzyn': {'Opole': 54, 'Gliwice': 38},
-          'Gliwice': {'Kedzierzyn': 38, 'Opole': 82, 'Strzelce': 39, 'Bytom': 21, 'Katowice': 29, 'Tychy': 33},
-          'Bytom': {'Gliwice': 21, 'Strzelce': 51, 'Katowice': 13, 'Dabrowa': 28},
-          'Dabrowa': {'Bytom': 28, 'Czestochowa': 63, 'Olkusz': 25, 'Katowice': 19},
-          'Olkusz': {'Dabrowa': 25, 'Skala': 24, 'Krakow': 42},
-          'Wolbrom': {'Czestochowa': 85, 'Koniecpol': 53, 'Miechow': 21, 'Skala': 19},
-          'Miechow': {'Wolbrom': 21, 'Slomniki': 16},
-          'Slomniki': {'Miechow': 16, 'Krakow': 24},
-          'Katowice': {'Gliwice': 29, 'Bytom': 13, 'Dabrowa': 19, 'Krakow': 79, 'Chrzanow':34, 'Tychy': 19},
-          'Skala': {'Olkusz': 24, 'Wolbrom': 19, 'Krakow': 22},
-          'Tychy': {'Gliwice': 33, 'Katowice': 19, 'Oswiecim': 19},
-          'Oswiecim': {'Tychy': 19, 'Chrzanow': 21, 'Krakow': 68},
-          'Chrzanow': {'Oswiecim': 21, 'Katowice': 34, 'Krakow': 48},
-          'Krakow': {}} # Graf spójny cykliczny z wagami
+    G1 = {1: [2, 3, 4],
+         2: [1, 5, 6],
+         3: [1, 7],
+         4: [1, 8, 9],
+         5: [2],
+         6: [2],
+         7: [3, 10],
+         8: [4],
+         9: [4],
+         10: [7]}  # Graf spójny acykliczny
 
-    h = {'Opole': 175, 'Czestochowa': 113, 'Koniecpol': 93, 'Strzelce': 144,
-         'Kedzierzyn': 145, 'Gliwice': 107, 'Bytom': 86, 'Dabrowa': 63,
-         'Olkusz': 41, 'Wolbrom': 42, 'Miechow': 35, 'Slomniki': 22,
-         'Katowice': 70, 'Skala': 21, 'Tychy': 73, 'Oswiecim': 57,
-         'Chrzanow': 46, 'Krakow': 0}
-    # Start, koniec
-    s, k = 'Opole', 'Krakow'
+    G2 = {1: [2, 3, 4, 6],
+          2: [1, 5, 6, 7],
+          3: [1, 7, 8],
+          4: [1, 7, 8, 9],
+          5: [2, 6],
+          6: [2, 5, 1, 10],
+          7: [2, 3, 4, 10],
+          8: [3, 4, 9],
+          9: [4, 8],
+          10: [6, 7]}  # Graf spójny cykliczny
 
-    print(a_star(graf, s, k, h))
+    G3 = {1: [2, 3, 6],
+          2: [1, 5, 6, 7],
+          3: [1, 7],
+          4: [8, 9],
+          5: [2, 6],
+          6: [2, 5, 1, 10],
+          7: [2, 3, 10],
+          8: [4, 9],
+          9: [4, 8],
+          10: [6, 7]}  # Graf niespójny cykliczny
 
+    s: int = 1  # Start
+    # wykonanie się algorytmu DFS
+    numeracja_elementow = DFS(G3, s)
+
+    # Wyświetlanie wyniku
+    for value, key in numeracja_elementow.items():
+        print("Element nr.", key, " ma indeks", value)
+
+    # Sprawdzanie czy graf jest spójny
+    if len(G3) != len(numeracja_elementow):
+        print("Graf jest niespojny!")
+    else:
+        print('Graf jest spojny!')
 
 if __name__ == '__main__':
     main()
