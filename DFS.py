@@ -1,3 +1,4 @@
+# Depth-first search
 def DFS(G: dict[int], s: int) -> dict[int]:
     licznik = 0
     # słownik do przedstawienia elementów w nowej kolejności
