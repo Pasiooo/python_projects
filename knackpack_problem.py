@@ -1,6 +1,6 @@
 import numpy as np
 
-# knackpack problem 
+# Knackpack problem - dyskretny problem optymalizacji załadunku
 def decyzja(z, w, ogr, ilosc):
     # Pomocnicza tablica zer
     tab = np.zeros((ogr + 1, ilosc + 1))
